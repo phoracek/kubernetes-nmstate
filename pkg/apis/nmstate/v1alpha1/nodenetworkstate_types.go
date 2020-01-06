@@ -7,21 +7,28 @@ import (
 // NodeNetworkStateStatus is the status of the NodeNetworkState of a specific node
 // +k8s:openapi-gen=true
 type NodeNetworkStateStatus struct {
-	CurrentState             State       `json:"currentState,omitempty"`
-	LastSuccessfulUpdateTime metav1.Time `json:"lastSuccessfulUpdateTime,omitempty"`
-
-	Conditions ConditionList `json:"conditions,omitempty" optional:"true"`
+	// +optional
+	CurrentState *State `json:"currentState,omitempty"`
+	// +optional
+	LastSuccessfulUpdateTime *metav1.Time `json:"lastSuccessfulUpdateTime,omitempty"`
+	// +optional
+	Conditions ConditionList `json:"conditions,omitempty"`
 }
 
 const (
 	NodeNetworkStateConditionAvailable ConditionType = "Available"
-	NodeNetworkStateConditionFailing   ConditionType = "Failing"
+	NodeNetworkStateConditionDegraded  ConditionType = "Degraded"
 )
 
 const (
-	NodeNetworkStateConditionFailedToConfigure      ConditionReason = "FailedToConfigure"
-	NodeNetworkStateConditionSuccessfullyConfigured ConditionReason = "SuccessfullyConfigured"
+	NodeNetworkStateConditionFailedToObtainCurrentState        ConditionReason = "FailedToObtainCurrentState"
+	NodeNetworkStateConditionSuccessfullyObtainedCurrentStatus ConditionReason = "SuccessfullyObtainedCurrentStatus"
 )
+
+var NodeNetworkStateConditionTypes = [...]ConditionType{
+	NodeNetworkStateConditionAvailable,
+	NodeNetworkStateConditionDegraded,
+}
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
@@ -30,9 +37,11 @@ const (
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:path=nodenetworkstates,shortName=nns,scope=Cluster
 type NodeNetworkState struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +optional
 	Status NodeNetworkStateStatus `json:"status,omitempty"`
 }
 
@@ -41,6 +50,7 @@ type NodeNetworkState struct {
 // NodeNetworkStateList contains a list of NodeNetworkState
 type NodeNetworkStateList struct {
 	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []NodeNetworkState `json:"items"`
 }

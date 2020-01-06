@@ -16,7 +16,7 @@ var _ = Describe("NNS LastSuccessfulUpdateTime", func() {
 		It("timestamp should be changed", func() {
 			for _, node := range nodes {
 				key := types.NamespacedName{Name: node}
-				originalTime := nodeNetworkState(key).Status.LastSuccessfulUpdateTime
+				originalTime := nodeNetworkStateAvailable(key).Status.LastSuccessfulUpdateTime
 
 				configMap, err := framework.Global.KubeClient.CoreV1().ConfigMaps("nmstate").Get("nmstate-config", metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
@@ -28,7 +28,7 @@ var _ = Describe("NNS LastSuccessfulUpdateTime", func() {
 				timeout := time.Duration(interval*3) * time.Second
 
 				Eventually(func() time.Time {
-					updatedTime := nodeNetworkState(key).Status.LastSuccessfulUpdateTime
+					updatedTime := nodeNetworkStateAvailable(key).Status.LastSuccessfulUpdateTime
 					return updatedTime.Time
 				}, timeout, 1*time.Second).Should(BeTemporally(">", originalTime.Time))
 			}

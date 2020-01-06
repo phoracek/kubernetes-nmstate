@@ -1,6 +1,8 @@
 package v1alpha1
 
 import (
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -42,8 +44,8 @@ status:
 				CreationTimestamp: metav1.Unix(0, 0),
 			},
 			Status: NodeNetworkStateStatus{
-				CurrentState:             currentState,
-				LastSuccessfulUpdateTime: metav1.Unix(0, 0),
+				CurrentState:             &currentState,
+				LastSuccessfulUpdateTime: &metav1.Time{Time: time.Unix(0, 0)},
 			},
 		}
 	)

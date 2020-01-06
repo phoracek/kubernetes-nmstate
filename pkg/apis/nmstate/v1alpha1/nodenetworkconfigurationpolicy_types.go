@@ -11,6 +11,7 @@ import (
 // NodeNetworkConfigurationPolicyList contains a list of NodeNetworkConfigurationPolicy
 type NodeNetworkConfigurationPolicyList struct {
 	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []NodeNetworkConfigurationPolicy `json:"items"`
 }
@@ -23,10 +24,13 @@ type NodeNetworkConfigurationPolicyList struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:path=nodenetworkconfigurationpolicies,shortName=nncp,scope=Cluster
 type NodeNetworkConfigurationPolicy struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   NodeNetworkConfigurationPolicySpec   `json:"spec,omitempty"`
+	// +optional
+	Spec NodeNetworkConfigurationPolicySpec `json:"spec,omitempty"`
+	// +optional
 	Status NodeNetworkConfigurationPolicyStatus `json:"status,omitempty"`
 }
 
@@ -40,13 +44,15 @@ type NodeNetworkConfigurationPolicySpec struct {
 	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
 
 	// The desired configuration of the policy
+	// +optional
 	DesiredState State `json:"desiredState,omitempty"`
 }
 
 // NodeNetworkConfigurationPolicyStatus defines the observed state of NodeNetworkConfigurationPolicy
 // +k8s:openapi-gen=true
 type NodeNetworkConfigurationPolicyStatus struct {
-	Conditions ConditionList `json:"conditions,omitempty" optional:"true"`
+	// +optional
+	Conditions ConditionList `json:"conditions,omitempty"`
 }
 
 const (

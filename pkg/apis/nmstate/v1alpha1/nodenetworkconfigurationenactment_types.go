@@ -13,6 +13,7 @@ import (
 // NodeNetworkConfigurationEnactmentList contains a list of NodeNetworkConfigurationEnactment
 type NodeNetworkConfigurationEnactmentList struct {
 	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []NodeNetworkConfigurationEnactment `json:"items"`
 }
@@ -25,9 +26,11 @@ type NodeNetworkConfigurationEnactmentList struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:path=nodenetworkconfigurationenactments,shortName=nnce,scope=Cluster
 type NodeNetworkConfigurationEnactment struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +optional
 	Status NodeNetworkConfigurationEnactmentStatus `json:"status,omitempty"`
 }
 
@@ -37,8 +40,10 @@ type NodeNetworkConfigurationEnactmentStatus struct {
 
 	// The desired state rendered for the enactment's node using
 	// the policy desiredState as template
+	// +optional
 	DesiredState State `json:"desiredState,omitempty"`
 
+	// +optional
 	Conditions ConditionList `json:"conditions,omitempty"`
 }
 

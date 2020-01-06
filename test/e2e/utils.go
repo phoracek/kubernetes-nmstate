@@ -200,6 +200,11 @@ func nodeNetworkState(key types.NamespacedName) nmstatev1alpha1.NodeNetworkState
 	return state
 }
 
+func nodeNetworkStateAvailable(key types.NamespacedName) nmstatev1alpha1.NodeNetworkState {
+	stateConditionsStatusEventually(key.Name).Should(containStateAvailable())
+	return nodeNetworkState(key)
+}
+
 func nodeNetworkConfigurationPolicy(policyName string) nmstatev1alpha1.NodeNetworkConfigurationPolicy {
 	key := types.NamespacedName{Name: policyName}
 	policy := nmstatev1alpha1.NodeNetworkConfigurationPolicy{}
@@ -328,19 +333,9 @@ func interfaces(state nmstatev1alpha1.State) []interface{} {
 	return interfaces
 }
 
-func currentState(namespace string, node string, currentStateYaml *nmstatev1alpha1.State) AsyncAssertion {
-	key := types.NamespacedName{Namespace: namespace, Name: node}
-	return Eventually(func() nmstatev1alpha1.RawState {
-		*currentStateYaml = nodeNetworkState(key).Status.CurrentState
-		return currentStateYaml.Raw
-	}, ReadTimeout, ReadInterval)
-}
-
 func interfacesNameForNode(node string) []string {
-	var currentStateYaml nmstatev1alpha1.State
-	currentState(namespace, node, &currentStateYaml).ShouldNot(BeEmpty())
-
-	interfaces := interfaces(currentStateYaml)
+	currentStateYaml := nodeNetworkStateAvailable(types.NamespacedName{Namespace: namespace, Name: node}).Status.CurrentState
+	interfaces := interfaces(*currentStateYaml)
 	Expect(interfaces).ToNot(BeEmpty(), "Node %s should have network interfaces", node)
 
 	return interfacesName(interfaces)
@@ -360,10 +355,8 @@ func interfacesNameForNodeConsistently(node string) AsyncAssertion {
 
 func interfacesForNode(node string) AsyncAssertion {
 	return Eventually(func() []interface{} {
-		var currentStateYaml nmstatev1alpha1.State
-		currentState(namespace, node, &currentStateYaml).ShouldNot(BeEmpty())
-
-		interfaces := interfaces(currentStateYaml)
+		currentStateYaml := nodeNetworkStateAvailable(types.NamespacedName{Namespace: namespace, Name: node}).Status.CurrentState
+		interfaces := interfaces(*currentStateYaml)
 		Expect(interfaces).ToNot(BeEmpty(), "Node %s should have network interfaces", node)
 
 		return interfaces
@@ -482,7 +475,7 @@ func nextBond() string {
 
 func currentStateJSON(node string) []byte {
 	key := types.NamespacedName{Name: node}
-	currentState := nodeNetworkState(key).Status.CurrentState
+	currentState := nodeNetworkStateAvailable(key).Status.CurrentState
 	currentStateJson, err := yaml.YAMLToJSON(currentState.Raw)
 	ExpectWithOffset(1, err).ToNot(HaveOccurred())
 	return currentStateJson
