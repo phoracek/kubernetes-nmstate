@@ -210,9 +210,9 @@ release: $(versioned_operator_manifest) push-handler $(description) $(GITHUB_REL
 						$(versioned_operator_manifest) \
 						$(shell find deploy/crds/ deploy/openshift -type f)
 
-vendor:
-	$(GO) mod tidy
-	$(GO) mod vendor
+vendor: $(GO)
+	$(GO) mod tidy -v
+	$(GO) mod vendor -v
 
 tools-vendoring:
 	./hack/vendor-tools.sh $(BIN_DIR) $$(pwd)/tools.go
